@@ -1,0 +1,278 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!-- Load the Polymer.Element base class -->
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="my-mixin.html">
+
+<dom-module id="my-carousel">
+  <template>
+
+    <!-- Styles MUST be inside template -->
+    <style>
+
+      :host {
+        display: block;
+        position: relative;
+        overflow: hidden;
+      }
+
+      div > ::slotted(:not([selected])) {
+        display: none;
+      }
+
+      button {
+        position: absolute;
+        top: calc(50% - 20px);
+        padding: 0;
+        line-height: 40px;
+        border: none;
+        background: none;
+        color: #DDD;
+        font-size: 40px;
+        font-weight: bold;
+        opacity: 0.7;
+      }
+
+      button:hover,
+      button:focus {
+        opacity: 1;
+      }
+
+      #prevBtn {
+        left: 12px;
+      }
+
+      #nextBtn {
+        right: 12px;
+      }
+
+      button[disabled] {
+        opacity: 0.4;
+      }
+
+    </style>
+
+    <div>
+      <slot></slot>
+    </div>
+
+    <button id="prevBtn" on-click="previous">❮</button>
+    <button id="nextBtn" on-click="next">❯</button>
+
+  </template>
+
+  <script>
+
+    // Extend Polymer.Element with MyMixin
+    class MyCarousel extends MyMixin(Polymer.Element) {
+
+      static get is() { return 'my-carousel' }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        requestAnimationFrame(this._installListeners.bind(this));
+      }
+
+      _selectedChanged(selected, oldSelected) {
+        super._selectedChanged(selected, oldSelected);
+
+        this.$.prevBtn.disabled = !selected.previousElementSibling;
+        this.$.nextBtn.disabled = !selected.nextElementSibling;
+
+        this._loadImage(selected);
+        this._loadImage(selected.previousElementSibling);
+        this._loadImage(selected.nextElementSibling);
+      }
+
+      previous() {
+        var elem = this.selected.previousElementSibling;
+        if (elem && !this._touchDir) {
+          // Setup transition start state
+          var oldSelected = this.selected;
+          this._translateX(oldSelected, 0);
+          this._translateX(elem, -this.offsetWidth);
+
+          // Start the transition
+          this.selected = elem;
+          this._translateX(oldSelected, this.offsetWidth, true /* transition */);
+          this._translateX(elem, 0, true /* transition */);
+        }
+      }
+
+      next() {
+        var elem = this.selected.nextElementSibling;
+        if (elem && !this._touchDir) {
+          // Setup transition start state
+          var oldSelected = this.selected;
+          this._translateX(oldSelected, 0);
+          this._translateX(elem, this.offsetWidth);
+
+          // Start the transition
+          this.selected = elem;
+          this._translateX(oldSelected, -this.offsetWidth, true /* transition */);
+          this._translateX(elem, 0, true /* transition */);
+        }
+      }
+
+      _loadImage(img) {
+        if (img && !img.src) {
+          img.src = img.getAttribute('data-src');
+        }
+      }
+
+      _translateX(elem, x, transition) {
+        elem.style.display = 'block';
+        elem.style.transition = transition ? 'transform 0.2s' : '';
+        elem.style.transform = 'translate3d(' + x + 'px, 0, 0)';
+      }
+
+      _installListeners() {
+        this.addEventListener('transitionend', this._resetChildrenStyles.bind(this));
+        this.addEventListener('touchstart', this._touchstart.bind(this));
+        this.addEventListener('touchmove', this._touchmove.bind(this));
+        this.addEventListener('touchend', this._touchend.bind(this));
+      }
+
+      _resetChildrenStyles() {
+        var elem = this.firstElementChild;
+        while (elem) {
+          elem.style.display = '';
+          elem.style.transition = '';
+          elem.style.transform = '';
+          elem = elem.nextElementSibling;
+        }
+      }
+
+      _touchstart(event) {
+        // No transition if less than two images
+        if (this.childElementCount < 2) {
+          return;
+        }
+
+        // Save start coordinates
+        if (!this._touchDir) {
+          this._startX = event.changedTouches[0].clientX;
+          this._startY = event.changedTouches[0].clientY;
+        }
+      }
+
+      _touchmove(event) {
+        // No transition if less than two images
+        if (this.childElementCount < 2) {
+          return;
+        }
+
+        // Is touchmove mostly horizontal or vertical?
+        if (!this._touchDir) {
+          var absX = Math.abs(event.changedTouches[0].clientX - this._startX);
+          var absY = Math.abs(event.changedTouches[0].clientY - this._startY);
+          this._touchDir = absX > absY ? 'x' : 'y';
+        }
+
+        if (this._touchDir === 'x') {
+          // Prevent vertically scrolling when swiping
+          event.preventDefault();
+
+          var dx = Math.round(event.changedTouches[0].clientX - this._startX);
+          var prevChild = this.selected.previousElementSibling;
+          var nextChild = this.selected.nextElementSibling;
+
+          // Don't translate past the current image if there's no adjacent image in that direction
+          if ((!prevChild && dx > 0) || (!nextChild && dx < 0)) {
+            dx = 0;
+          }
+
+          this._translateX(this.selected, dx);
+          if (prevChild) {
+            this._translateX(prevChild, dx - this.offsetWidth);
+          }
+          if (nextChild) {
+            this._translateX(nextChild, dx + this.offsetWidth);
+          }
+        }
+      }
+
+      _touchend(event) {
+        // No transition if less than two images
+        if (this.childElementCount < 2) {
+          return;
+        }
+
+        // Don't finish swiping if there are still active touches.
+        if (event.touches.length) {
+          return;
+        }
+
+        if (this._touchDir === 'x') {
+          var dx = Math.round(event.changedTouches[0].clientX - this._startX);
+          var prevChild = this.selected.previousElementSibling;
+          var nextChild = this.selected.nextElementSibling;
+
+          // Don't translate past the current image if there's no adjacent image in that direction
+          if ((!prevChild && dx > 0) || (!nextChild && dx < 0)) {
+            dx = 0;
+          }
+
+          if (dx > 0) {
+            var prevChild = this.selected.previousElementSibling;
+            if (prevChild) {
+              if (dx > 100) {
+                if (dx === this.offsetWidth) {
+                  // No transitionend will fire (since we're already in the final state),
+                  // so reset children styles now
+                  this._resetChildrenStyles();
+                } else {
+                  this._translateX(prevChild, 0, true);
+                  this._translateX(this.selected, this.offsetWidth, true);
+                }
+                this.selected = prevChild;
+              } else {
+                this._translateX(prevChild, -this.offsetWidth, true);
+                this._translateX(this.selected, 0, true);
+              }
+            }
+          } else if (dx < 0) {
+            var nextChild = this.selected.nextElementSibling;
+            if (nextChild) {
+              if (dx < -100) {
+                if (dx === -this.offsetWidth) {
+                  // No transitionend will fire (since we're already in the final state),
+                  // so reset children styles now
+                  this._resetChildrenStyles();
+                } else {
+                  this._translateX(this.selected, -this.offsetWidth, true);
+                  this._translateX(nextChild, 0, true);
+                }
+                this.selected = nextChild;
+              } else {
+                this._translateX(this.selected, 0, true);
+                this._translateX(nextChild, this.offsetWidth, true);
+              }
+            }
+          } else {
+            // No transitionend will fire (since we're already in the final state),
+            // so reset children styles now
+            this._resetChildrenStyles();
+          }
+        }
+
+        // Reset touch direction
+        this._touchDir = null;
+      }
+
+    }
+
+    // Register custom element definition using standard platform API
+    customElements.define(MyCarousel.is, MyCarousel);
+
+  </script>
+</dom-module>
