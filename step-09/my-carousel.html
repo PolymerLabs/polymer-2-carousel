@@ -94,10 +94,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       previous() {
-        var elem = this.selected.previousElementSibling;
+        const elem = this.selected.previousElementSibling;
         if (elem && !this._touchDir) {
           // Setup transition start state
-          var oldSelected = this.selected;
+          const oldSelected = this.selected;
           this._translateX(oldSelected, 0);
           this._translateX(elem, -this.offsetWidth);
 
@@ -109,10 +109,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       next() {
-        var elem = this.selected.nextElementSibling;
+        const elem = this.selected.nextElementSibling;
         if (elem && !this._touchDir) {
           // Setup transition start state
-          var oldSelected = this.selected;
+          const oldSelected = this.selected;
           this._translateX(oldSelected, 0);
           this._translateX(elem, this.offsetWidth);
 
@@ -143,7 +143,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _resetChildrenStyles() {
-        var elem = this.firstElementChild;
+        let elem = this.firstElementChild;
         while (elem) {
           elem.style.display = '';
           elem.style.transition = '';
@@ -173,8 +173,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Is touchmove mostly horizontal or vertical?
         if (!this._touchDir) {
-          var absX = Math.abs(event.changedTouches[0].clientX - this._startX);
-          var absY = Math.abs(event.changedTouches[0].clientY - this._startY);
+          const absX = Math.abs(event.changedTouches[0].clientX - this._startX);
+          const absY = Math.abs(event.changedTouches[0].clientY - this._startY);
           this._touchDir = absX > absY ? 'x' : 'y';
         }
 
@@ -182,9 +182,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Prevent vertically scrolling when swiping
           event.preventDefault();
 
-          var dx = Math.round(event.changedTouches[0].clientX - this._startX);
-          var prevChild = this.selected.previousElementSibling;
-          var nextChild = this.selected.nextElementSibling;
+          const dx = Math.round(event.changedTouches[0].clientX - this._startX);
+          const prevChild = this.selected.previousElementSibling;
+          const nextChild = this.selected.nextElementSibling;
 
           // Don't translate past the current image if there's no adjacent image in that direction
           if ((!prevChild && dx > 0) || (!nextChild && dx < 0)) {
@@ -213,9 +213,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         if (this._touchDir === 'x') {
-          var dx = Math.round(event.changedTouches[0].clientX - this._startX);
-          var prevChild = this.selected.previousElementSibling;
-          var nextChild = this.selected.nextElementSibling;
+          const dx = Math.round(event.changedTouches[0].clientX - this._startX);
+          const prevChild = this.selected.previousElementSibling;
+          const nextChild = this.selected.nextElementSibling;
 
           // Don't translate past the current image if there's no adjacent image in that direction
           if ((!prevChild && dx > 0) || (!nextChild && dx < 0)) {
@@ -223,7 +223,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
           if (dx > 0) {
-            var prevChild = this.selected.previousElementSibling;
+            const prevChild = this.selected.previousElementSibling;
             if (prevChild) {
               if (dx > 100) {
                 if (dx === this.offsetWidth) {
@@ -241,7 +241,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             }
           } else if (dx < 0) {
-            var nextChild = this.selected.nextElementSibling;
+            const nextChild = this.selected.nextElementSibling;
             if (nextChild) {
               if (dx < -100) {
                 if (dx === -this.offsetWidth) {

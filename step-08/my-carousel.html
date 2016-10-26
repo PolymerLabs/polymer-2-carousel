@@ -94,10 +94,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       previous() {
-        var elem = this.selected.previousElementSibling;
+        const elem = this.selected.previousElementSibling;
         if (elem) {
           // Setup transition start state
-          var oldSelected = this.selected;
+          const oldSelected = this.selected;
           this._translateX(oldSelected, 0);
           this._translateX(elem, -this.offsetWidth);
 
@@ -109,10 +109,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       next() {
-        var elem = this.selected.nextElementSibling;
+        const elem = this.selected.nextElementSibling;
         if (elem) {
           // Setup transition start state
-          var oldSelected = this.selected;
+          const oldSelected = this.selected;
           this._translateX(oldSelected, 0);
           this._translateX(elem, this.offsetWidth);
 
@@ -140,7 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _resetChildrenStyles() {
-        var elem = this.firstElementChild;
+        let elem = this.firstElementChild;
         while (elem) {
           elem.style.display = '';
           elem.style.transition = '';
