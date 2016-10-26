@@ -182,7 +182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Prevent vertically scrolling when swiping
           event.preventDefault();
 
-          const dx = Math.round(event.changedTouches[0].clientX - this._startX);
+          let dx = Math.round(event.changedTouches[0].clientX - this._startX);
           const prevChild = this.selected.previousElementSibling;
           const nextChild = this.selected.nextElementSibling;
 
@@ -213,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         if (this._touchDir === 'x') {
-          const dx = Math.round(event.changedTouches[0].clientX - this._startX);
+          let dx = Math.round(event.changedTouches[0].clientX - this._startX);
           const prevChild = this.selected.previousElementSibling;
           const nextChild = this.selected.nextElementSibling;
 
