@@ -223,40 +223,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
           if (dx > 0) {
-            const prevChild = this.selected.previousElementSibling;
-            if (prevChild) {
-              if (dx > 100) {
-                if (dx === this.offsetWidth) {
-                  // No transitionend will fire (since we're already in the final state),
-                  // so reset children styles now
-                  this._resetChildrenStyles();
-                } else {
-                  this._translateX(prevChild, 0, true);
-                  this._translateX(this.selected, this.offsetWidth, true);
-                }
-                this.selected = prevChild;
+            if (dx > 100) {
+              if (dx === this.offsetWidth) {
+                // No transitionend will fire (since we're already in the final state),
+                // so reset children styles now
+                this._resetChildrenStyles();
               } else {
-                this._translateX(prevChild, -this.offsetWidth, true);
-                this._translateX(this.selected, 0, true);
+                this._translateX(prevChild, 0, true);
+                this._translateX(this.selected, this.offsetWidth, true);
               }
+              this.selected = prevChild;
+            } else {
+              this._translateX(prevChild, -this.offsetWidth, true);
+              this._translateX(this.selected, 0, true);
             }
           } else if (dx < 0) {
-            const nextChild = this.selected.nextElementSibling;
-            if (nextChild) {
-              if (dx < -100) {
-                if (dx === -this.offsetWidth) {
-                  // No transitionend will fire (since we're already in the final state),
-                  // so reset children styles now
-                  this._resetChildrenStyles();
-                } else {
-                  this._translateX(this.selected, -this.offsetWidth, true);
-                  this._translateX(nextChild, 0, true);
-                }
-                this.selected = nextChild;
+            if (dx < -100) {
+              if (dx === -this.offsetWidth) {
+                // No transitionend will fire (since we're already in the final state),
+                // so reset children styles now
+                this._resetChildrenStyles();
               } else {
-                this._translateX(this.selected, 0, true);
-                this._translateX(nextChild, this.offsetWidth, true);
+                this._translateX(this.selected, -this.offsetWidth, true);
+                this._translateX(nextChild, 0, true);
               }
+              this.selected = nextChild;
+            } else {
+              this._translateX(this.selected, 0, true);
+              this._translateX(nextChild, this.offsetWidth, true);
             }
           } else {
             // No transitionend will fire (since we're already in the final state),
