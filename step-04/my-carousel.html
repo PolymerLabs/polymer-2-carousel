@@ -87,26 +87,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       connectedCallback() {
         super.connectedCallback();
 
-        this.selected = this.firstElementChild;
+        this.shadowRoot.addEventListener('slotchange', this._resetSelected.bind(this));
+        this._resetSelected();
+      }
+
+      _resetSelected() {
+        if (!this.selected || this.selected.parentElement !== this) {
+          this.selected = this.firstElementChild;
+        }
       }
 
       _selectedChanged(selected, oldSelected) {
         if (oldSelected) oldSelected.removeAttribute('selected');
         if (selected) selected.setAttribute('selected', '');
 
-        this.$.prevBtn.disabled = !selected.previousElementSibling;
-        this.$.nextBtn.disabled = !selected.nextElementSibling;
+        if (selected) {
+          this.$.prevBtn.disabled = !selected.previousElementSibling;
+          this.$.nextBtn.disabled = !selected.nextElementSibling;
+        } else {
+          this.$.prevBtn.disabled = true;
+          this.$.nextBtn.disabled = true;
+        }
       }
 
       previous() {
-        const elem = this.selected.previousElementSibling;
+        const elem = this.selected && this.selected.previousElementSibling;
         if (elem) {
           this.selected = elem;
         }
       }
 
       next() {
-        const elem = this.selected.nextElementSibling;
+        const elem = this.selected && this.selected.nextElementSibling;
         if (elem) {
           this.selected = elem;
         }

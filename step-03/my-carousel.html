@@ -45,7 +45,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       connectedCallback() {
         super.connectedCallback();
 
-        this.firstElementChild.setAttribute('selected', '');
+        this.shadowRoot.addEventListener('slotchange', this._resetSelected.bind(this));
+        this._resetSelected();
+      }
+
+      _resetSelected() {
+        if (this.firstElementChild) {
+          this.firstElementChild.setAttribute('selected', '');
+        }
       }
 
     }

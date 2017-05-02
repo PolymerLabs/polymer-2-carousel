@@ -83,19 +83,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _selectedChanged(selected, oldSelected) {
         super._selectedChanged(selected, oldSelected);
 
-        this.$.prevBtn.disabled = !selected.previousElementSibling;
-        this.$.nextBtn.disabled = !selected.nextElementSibling;
+        if (selected) {
+          this.$.prevBtn.disabled = !selected.previousElementSibling;
+          this.$.nextBtn.disabled = !selected.nextElementSibling;
+        } else {
+          this.$.prevBtn.disabled = true;
+          this.$.nextBtn.disabled = true;
+        }
       }
 
       previous() {
-        const elem = this.selected.previousElementSibling;
+        const elem = this.selected && this.selected.previousElementSibling;
         if (elem) {
           this.selected = elem;
         }
       }
 
       next() {
-        const elem = this.selected.nextElementSibling;
+        const elem = this.selected && this.selected.nextElementSibling;
         if (elem) {
           this.selected = elem;
         }

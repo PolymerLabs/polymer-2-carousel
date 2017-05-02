@@ -23,12 +23,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     connectedCallback() {
       super.connectedCallback();
 
-      this.selected = this.firstElementChild;
+      this.shadowRoot.addEventListener('slotchange', this._resetSelected.bind(this));
+      this._resetSelected();
     }
 
     _selectedChanged(selected, oldSelected) {
       if (oldSelected) oldSelected.removeAttribute('selected');
       if (selected) selected.setAttribute('selected', '');
+    }
+
+    _resetSelected() {
+      if (!this.selected || this.selected.parentElement !== this) {
+        this.selected = this.firstElementChild;
+      }
     }
 
   };
